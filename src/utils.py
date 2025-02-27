@@ -2,10 +2,12 @@ import os
 import logging
 import pandas as pd
 
-from args import ModelConfig, TaskConfig
 from typing import List, Dict, Any
 from collections import defaultdict
 from lm_eval.loggers import WandbLogger
+
+from src.args import ModelConfig, TaskConfig
+
 
 
 logger = logging.getLogger(__name__)

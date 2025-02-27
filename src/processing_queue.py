@@ -6,7 +6,7 @@ from dataclasses import dataclass
 import sqlite3
 import aiosqlite
 from datetime import datetime
-from together_client import AsyncBatchClient, BatchRequest
+from src.llm_clients.together_client import AsyncBatchClient, BatchRequest
 from tqdm import tqdm
 
 @dataclass

@@ -9,12 +9,14 @@ from datasets import load_dataset
 from transformers import AutoTokenizer
 from string import Template
 from copy import copy
-from args import load_config
-from utils import generate_lang_task_list
-from processing_queue import SummarizationQueue
 from tqdm import tqdm
 from collections import defaultdict
 import evaluate
+
+from src.args import load_config
+from src.utils import generate_lang_task_list
+from src.processing_queue import SummarizationQueue
+
 
 logging.basicConfig(level = logging.INFO)
 logger = logging.getLogger(__name__)

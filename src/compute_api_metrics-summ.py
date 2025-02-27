@@ -10,8 +10,8 @@ from string import Template
 from tqdm import tqdm
 from collections import defaultdict
 
-from args import load_config
-from processing_queue import SummarizationQueue
+from src.args import load_config
+from src.processing_queue import SummarizationQueue
 from transformers import AutoTokenizer
 
 logging.basicConfig(level = logging.INFO)
@@ -97,6 +97,10 @@ async def main():
 
         for column in prompt_columns:
             samples = defaultdict(list)
+
+            if os.path.exists(f'{config.run_dir}/results/{config.task.task_name}_{task}_{config.model.model_name.replace("/", "_")}_samples_{column}.json'):
+                logger.info(f"Skipping prompt type: {column} as results already exist")
+                continue
 
             for text_batch, summaries in tqdm(zip(batch_iterable(task_dataset[column]), batch_iterable(task_dataset["summary"]) ),
                                 desc=f"Processing prompt type: {column}"):
