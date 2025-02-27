@@ -1,6 +1,6 @@
 model_name: LLaMAX/LLaMAX3-8B-Alpaca
 trust_remote_code: true
-parallelize: false
+parallelize: true
 add_bos_token: false
 model_type: hf
 languages_supported:
