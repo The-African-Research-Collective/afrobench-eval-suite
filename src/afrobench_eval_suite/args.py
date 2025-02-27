@@ -1,10 +1,13 @@
-from dataclasses import dataclass, field
-from dataclasses_json import dataclass_json
 import argparse
+import os
 import yaml
 from typing import List, Optional, Type, TypeVar, Union
 
+from dataclasses import dataclass, field
+from dataclasses_json import dataclass_json
+
 T = TypeVar('T', bound='BaseConfig')
+
 
 @dataclass_json
 @dataclass
@@ -54,6 +57,7 @@ class TaskConfig(BaseConfig):
     wandb_project: str = field(default="default_project")
     wandb_job_type: str = field(default="eval")
 
+
 @dataclass_json
 @dataclass
 class ModelConfig(BaseConfig):
@@ -78,6 +82,8 @@ class ModelConfig(BaseConfig):
     dtype: str = field(default='auto')
     gpu_memory_utilization: float = field(default=0.5)
     data_parallel_size: int = field(default=1)
+    vllm: dict = field(default_factory=dict)
+
 
 @dataclass_json
 @dataclass
@@ -99,6 +105,8 @@ class EvaluationConfig(BaseConfig):
         limit (int): The limit for evaluation. Default is -1.
     """
     batch_size: Union[int, str] = field(default='auto')
+    split_tasks: bool = field(default=False)
+    batch_size: str = field(default="auto")
     max_batch_size: int = field(default=8)
     num_fewshot: int = field(default=0)
     random_seed: int = field(default=42)
@@ -109,6 +117,10 @@ class EvaluationConfig(BaseConfig):
     log_samples: bool = field(default=True)
     write_out: bool = field(default=False)
     limit: int = field(default=None)
+
+    def __post_init__(self):
+        if self.batch_size.isdecimal():
+            self.batch_size = int(self.batch_size)
 
 
 @dataclass_json
@@ -133,6 +145,7 @@ class ScriptConfig(BaseConfig):
     eval: EvaluationConfig = field(default_factory=EvaluationConfig)
     model_config_yaml: Optional[str] = field(default=None)
     task_config_yaml: Optional[str] = field(default=None)
+    run_dir: str = field(default=None)
 
     @classmethod
     def add_args(cls, parser: argparse.ArgumentParser) -> None:
@@ -178,7 +191,13 @@ class ScriptConfig(BaseConfig):
                     obj = getattr(obj, part)
                 setattr(obj, parts[-1], value)
         
+        if config.run_dir is None and config.eval.split_tasks:
+            raise ValueError
+        else:
+            os.makedirs(config.run_dir, exist_ok=True)
+        
         return config
+
 
 def load_config() -> ScriptConfig:
     return ScriptConfig.from_args()
